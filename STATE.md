@@ -26,7 +26,7 @@ Rules:
 | AFAOSMD | EAUtils | ON | false | PENDING |
 | BBRSI | EAUtils | ON | true | PENDING |
 | CEZLSMA | EAUtils | ON | true | PENDING |
-| COT1 | EAUtils, Cot.mqh, Sql.mqh | ON | false | PENDING (Cot.mqh file read/write, extra check needed) |
+| COT1 | EAUtils, Cot.mqh, Sql.mqh, Shell.mqh | ON | false | CAUTION-OK (code clean, needs DLL import + internet to CFTC; no Strategy Tester) |
 | LRCMACD | EAUtils | ON | false | PENDING |
 | LRCUTB | EAUtils | ON | false | PENDING |
 | NWERSIASF | EAUtils | ON | false | PENDING |
@@ -52,6 +52,30 @@ Verify checklist (demo):
 3. Pair/TF: pehle AUDUSD M5 par backtest, phir gold par alag optimize.
 4. Experts tab mein koi unknown error/Print nahi aana chahiye.
 5. Trade khulte hi SL/TP broker side dikhna chahiye.
+
+## COT1 review (v1.2)
+Logic:
+- Weekly CFTC COT data (publicreporting.cftc.gov) -> local SQLite DB (MT5 common folder).
+- 8 currency futures (AUD, EUR, GBP, NZD, CAD, CHF, JPY, USD). Primary class Dealer, secondary Leveraged Funds.
+- Top 2 "green" (net long change > 0, highest long %) x top 2 "red" (net short change < 0, highest short %) -> pair trades. Buy if green+red symbol exists, else sell reverse pair.
+- Trades only Monday/Tuesday after OpenTime 03:00 (server), one trade per symbol per week. SuperTrend filter optional (off).
+- SL on D1 (SL_AR, lookback 6, +30 points), TP 2x SL, trailing 50%.
+
+Safety:
+- Network: only WinINet to publicreporting.cftc.gov (official CFTC). No other host.
+- Shell.mqh is included (kernel32/user32 imports, PowerShell/CMD helpers) but Cot.mqh/COT1 never call PShell/CShell/Open. Still needs "Allow DLL imports".
+- Writes only CSV + SQLite in common folder (Cot data).
+
+Risk flags:
+- Risk default 3.5% (high), Grid ON x1.2 up to 20 levels, IgnoreTP true.
+- OnTesterInit returns INIT_FAILED: Strategy Tester me chalta hi nahi. Sirf demo forward test.
+- Gold/XAUUSD ke liye nahi bana (sirf currency pairs).
+
+Verify checklist (demo):
+1. Risk <= 0.5, Grid=false, IgnoreTP=false.
+2. Tools > Options > Expert Advisors: Allow DLL imports ON.
+3. Experts tab: "Downloading ... file" aur "successfully downloaded" dikhna chahiye.
+4. Mon/Tue 03:00 ke baad hi signal; ek hi position (MultipleOpenPos=false).
 
 ## Pending
 - Baaki 12 EA ka ek-ek review.
