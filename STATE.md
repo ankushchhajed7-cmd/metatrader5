@@ -53,6 +53,10 @@ Verify checklist (demo):
 4. Experts tab mein koi unknown error/Print nahi aana chahiye.
 5. Trade khulte hi SL/TP broker side dikhna chahiye.
 
+## Build: COT1 v1.2 (demo-safe)
+- File: Experts/COT1 v1.2.mq5 (original COT1.mq5 se sirf defaults badle: Risk 0.5, Grid=false, IgnoreTP=false).
+- Compile order: SuperTrend.mq5 pehle, phir COT1 v1.2.mq5. Compile test MetaEditor me user ko karna hai.
+
 ## Pending
 - Baaki 12 EA ka ek-ek review.
 - Gold (XAUUSD) ke liye tuned version, jab user bole.
